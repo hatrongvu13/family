@@ -1,5 +1,6 @@
 package com.jax.core.config;
 
+import com.jax.core.authentication.utils.JwtAuthentication;
 import com.jax.core.authentication.utils.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,24 +19,45 @@ public class WebSecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
 
-    private final AuthenticationProvider authenticationProvider;
+    private final JwtAuthentication authentication;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors()
+                .and()
                 .csrf()
                 .disable()
-                .authorizeHttpRequests()
-                .antMatchers("/api/v1/auth/**")
-                .permitAll()
-                .anyRequest()
-                .authenticated()
+                .exceptionHandling()
+                .authenticationEntryPoint(authentication)
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .authorizeRequests()
+                .antMatchers("/",
+                        "/favicon.ico",
+                        "/**/*.png",
+                        "/**/*.gif",
+                        "/**/*.svg",
+                        "/**/*.jpg",
+                        "/**/*.html",
+                        "/**/*.css",
+                        "/**/*.js",
+                        "/**/*.woff2",
+                        "/**/*.woff",
+                        "/v3/api-docs",
+                        "/v2/api-docs",
+                        "/actuator/**",
+                        "/swagger-resources/**",
+                        "/swagger-ui/",
+                        "/authentication/login",
+                        "/authentication/active",
+                        "/authentication/register")
+                .permitAll()
+                .anyRequest()
+                .authenticated();
+        http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

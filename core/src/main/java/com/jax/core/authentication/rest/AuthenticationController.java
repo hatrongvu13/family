@@ -1,34 +1,40 @@
 package com.jax.core.authentication.rest;
 
-import com.jax.core.authentication.dvo.request.AuthenticationRequest;
+import com.jax.core.authentication.dvo.UserPrincipal;
+import com.jax.core.authentication.dvo.request.LoginRequest;
 import com.jax.core.authentication.dvo.request.RegisterRequest;
 import com.jax.core.authentication.dvo.responses.AuthenticationResponse;
+import com.jax.core.authentication.dvo.responses.UserInfo;
 import com.jax.core.authentication.service.AuthenticationService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/api/v1/auth")
-@RequiredArgsConstructor
+@RequestMapping(value = "/authentication", produces = MediaType.APPLICATION_JSON_VALUE)
+@CrossOrigin
 public class AuthenticationController {
 
-    private final AuthenticationService service;
+    private final AuthenticationService authenticationService;
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody RegisterRequest request
-    ) {
-        return ResponseEntity.ok(service.register(request));
+    @Autowired
+    public AuthenticationController(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
     }
 
-    @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(
-            @RequestBody AuthenticationRequest request
-    ) {
-        return ResponseEntity.ok(service.authenticate(request));
+    @RequestMapping(value = "/login", method = RequestMethod.POST)
+    public AuthenticationResponse login(@RequestBody LoginRequest loginRequest) {
+        return authenticationService.login(loginRequest);
+    }
+
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    public AuthenticationResponse register(@RequestBody RegisterRequest request) {
+        return authenticationService.register(request);
+    }
+
+    @RequestMapping(value = "/info", method = RequestMethod.GET)
+    public UserInfo info(@AuthenticationPrincipal UserPrincipal currentUser) {
+        return authenticationService.info(currentUser);
     }
 }

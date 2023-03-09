@@ -20,46 +20,16 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "t_user")
-public class UserDVO extends BaseDVO implements UserDetails {
-
+public class UserDVO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Integer id;
     protected String firstname;
     protected String lastname;
+    protected String username;
     @Email
     protected String email;
     protected String password;
     @Enumerated(EnumType.STRING)
     protected ERoleDVO role;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(role.name()));
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }
